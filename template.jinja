@@ -25,6 +25,10 @@ resources:
     - deviceName: {{"webserver-datadisk-abc-" + env["deployment"] + "-" +i|string }}
       source: $(ref.{{"webserver-datadisk-abc-" + env["deployment"] + "-" +i|string }}.selfLink)
       autoDelete: true
+    serviceAccounts:
+    - email: properties["serviceAccountName"]
+      scopes:
+      - "https://www.googleapis.com/auth/cloud-platform"
     networkInterfaces:
     - network: projects/{{ env["project"] }}/global/networks/{{ properties["vpc"] }}
       subnetwork: projects/{{ env["project"] }}/regions/{{ region }}/subnetworks/{{ properties["subnetwork"] }}
