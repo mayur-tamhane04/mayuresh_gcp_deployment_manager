@@ -1,0 +1,34 @@
+{% set region = properties["zone"].split("-")[0] + "-" + properties["zone"].split("-")[1] %}
+resources:
+
+{% for i in range(0,properties["webserverCount"]) %}
+- name: {{"webserver-datadisk-abc-" + env["deployment"] + "-" +i|string }}
+  type: compute.v1.disk
+  properties:
+   sizeGb: 100
+   type: projects/{{ env["project"] }}/zones/{{properties["zone"]}}/diskTypes/pd-standard
+   zone: {{properties["zone"]}}
+
+- name: {{ "webserver-" + env["deployment"] + "-" + i|string}}
+  type: compute.v1.instance
+  properties:
+    zone: {{ properties["zone"] }}
+    machineType: zones/{{ properties["zone"] }}/machineTypes/{{ properties["webserverMachineType"] }}
+    disks:
+    - deviceName: boot
+      autoDelete: true
+      type: PERSISTENT
+      boot: true
+      initializeParams:
+         disksizeGb: 20
+         sourceImage: projects/centos-cloud/global/images/centos-7-v20220519
+    - deviceName: {{"webserver-datadisk-abc-" + env["deployment"] + "-" +i|string }}
+      source: $(ref.{{"webserver-datadisk-abc-" + env["deployment"] + "-" +i|string }}.selfLink)
+      autoDelete: true
+    networkInterfaces:
+    - network: projects/{{ env["project"] }}/global/networks/{{ properties["vpc"] }}
+      subnetwork: projects/{{ env["project"] }}/regions/{{ region }}/subnetworks/{{ properties["subnetwork"] }}
+      accessConfigs:
+      - name: external-nat
+        networkTier: STANDARD
+{% endfor %}

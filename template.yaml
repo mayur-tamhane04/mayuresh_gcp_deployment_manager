@@ -1,0 +1,12 @@
+imports:
+- path: template.jinja
+
+resources:
+- name: template
+  type: template.jinja
+  properties:
+    vpc:
+    subnetwork:
+    zone:
+    webserverCount:
+    webserverMachineType:
